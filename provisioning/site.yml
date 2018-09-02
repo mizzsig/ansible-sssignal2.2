@@ -1,0 +1,99 @@
+---
+- name: configure
+  hosts: vagrants
+  become: yes
+  tasks:
+    - name: apt add repository for php
+      apt_repository: 
+        repo: ppa:ondrej/php
+
+    - name: apt_key for mongoDB
+      apt_key: 
+        keyserver: keyserver.ubuntu.com
+        id: 2930ADAE8CAF5059EE73BB4B58712A2291FA4AD5
+
+    - name: create list file for mongoDB
+      shell: echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.6 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.6.list
+
+    - name: curl for nginx
+      shell: curl http://nginx.org/keys/nginx_signing.key | sudo apt-key add -
+
+    - name: vcname for nginx 1
+      shell: VCNAME=`cat /etc/lsb-release | grep DISTRIB_CODENAME | cut -d= -f2` && sudo -E sh -c "echo \"deb http://nginx.org/packages/ubuntu/ $VCNAME nginx\" >> /etc/apt/sources.list"
+
+    - name: vcname for nginx 2
+      shell: VCNAME=`cat /etc/lsb-release | grep DISTRIB_CODENAME | cut -d= -f2` && sudo -E sh -c "echo \"deb-src http://nginx.org/packages/ubuntu/ $VCNAME nginx\" >> /etc/apt/sources.list"
+
+    - name: set timezone to Asia/Tokyo
+      timezone:
+        name: Asia/Tokyo
+
+    - name: apt update
+      apt:
+        update_cache: yes
+
+    - name: apt aptitude
+      apt: pkg=aptitude
+
+    - name: apt upgrade
+      apt:
+        upgrade: yes
+
+    - name: apt install packages
+      apt:
+        name: "{{ item.name }}"
+      with_items:
+        - name: php7.2
+        - name: php-mbstring
+        - name: php-xml
+        - name: php-zip
+        - name: php-fpm
+        - name: php-mongodb
+        - name: mongodb-org
+        - name: nginx
+
+    - name: set php-fpm
+      file:
+        path: /run/php/php7.2-fpm.sock
+        mode: 0666
+
+    - name: stop apache2
+      service:
+        name: apache2
+        state: stopped
+
+    - name: apt remove apache2
+      apt:
+        name: "{{ item.name }}"
+        state: absent
+      with_items:
+        - name: apache2
+        - name: apache2-bin
+        - name: apache2-data
+        - name: apache2-utils
+        - name: libapache2-mod-php7.2
+
+    - name: start mognoDB
+      service:
+        name: mongod
+        state: started
+
+    - name: enable mognoDB
+      service:
+        name: mongod
+        enabled: yes
+
+    - name: install composer
+      shell: curl -sS https://getcomposer.org/installer | php 
+      
+    - name: mv composer
+      shell: mv /home/vagrant/composer.phar /usr/local/bin/composer 
+    
+    - name: update composer
+      shell: composer self-update
+
+- name: nginx
+  hosts: vagrants
+  become: yes
+  roles:
+    - nginx
