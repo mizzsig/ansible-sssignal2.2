@@ -12,10 +12,15 @@
 
 ## 使い方
 git clone https://github.com/mizzsig/ansible-sssignal2.2.git
+
 cd ansible-sssignal2-2
+
 git clone https://github.com/mizzsig/sssignal2.2.git
+
 vi sssignal2-2/.env
+
 vagrant up 
+
 vagrant ssh
 
 ## TODO

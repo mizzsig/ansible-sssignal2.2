@@ -49,6 +49,7 @@
         - name: php-zip
         - name: php-fpm
         - name: php-mongodb
+        - name: php-pear
         - name: mongodb-org
         - name: nginx
 
