@@ -52,6 +52,7 @@
         - name: php-pear
         - name: mongodb-org
         - name: nginx
+        - name: supervisor
 
     - name: set php-fpm
       file:
@@ -98,3 +99,9 @@
   become: yes
   roles:
     - nginx
+
+- name: supervisor
+  hosts: vagrants
+  become: yes
+  roles:
+    - supervisor

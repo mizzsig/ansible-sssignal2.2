@@ -1,0 +1,5 @@
+---
+- name: create sendCommentMail.conf
+  template:
+    src: templates/sendCommentMail.conf
+    dest: /etc/supervisor/conf.d/sendCommentMail.conf
